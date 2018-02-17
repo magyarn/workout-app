@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.1",
+    "jquery": "^3.3.1",
+    "moment": "^2.20.1",
     "vue": "^2.5.2",
+    "vue-momentjs": "^0.1.1",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
