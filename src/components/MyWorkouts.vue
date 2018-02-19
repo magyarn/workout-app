@@ -15,6 +15,7 @@
             <b-row class="workout-description">
               <b-col xs="12">
                 <p class="card-text description">{{workout.description}}</p>
+                <b-button class="btn description text-primary bg-white view-wkt-btn" :workout="workout" :to="'/workouts/' + workout.id">VIEW WORKOUT</b-button>
               </b-col>
             </b-row>
           </b-card>
