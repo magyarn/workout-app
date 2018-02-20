@@ -27,13 +27,12 @@
              :tooltipStyle="[{'backgroundColor': 'white', 'borderColor': 'white', 'color': 'black', 'marginBottom': '-.5em', 'fontSize': '.6em'},
                {'backgroundColor': 'white', 'borderColor': 'white', 'color': 'black', 'marginBottom': '-.5em', 'fontSize': '.6em'}
              ]"
-               :processStyle="[{'backgroundColor': '#157efb'}, {'backgroundColor': '#157efb'}]"
-
+               :processStyle="{'backgroundColor': '#157efb'}"
              ></vue-slider>
         </b-col>
       </b-row>
       <b-row>
-        <b-col xs="1" sm="6" lg="4" v-for="workout in allWorkouts" :key="workout.id">
+        <b-col xs="1" sm="6" lg="4" v-for="workout in filteredWorkouts" :key="workout.id">
           <b-card tag="article" class="workout-card">
             <h2 class="workout-title">{{workout.title}}</h2>
             <p class="card-text created-by">Created by: {{workout.creator}}</p>
@@ -65,7 +64,8 @@ export default {
     return {
       createdBy: null,
       level: null,
-      time: [0, 26]
+      time: [0, 26],
+      loadedWorkouts: this.allWorkouts
     }
   },
   components: {
@@ -74,18 +74,6 @@ export default {
   },
   computed: {
     allWorkouts () {
-      if (this.createdBy && this.level) {
-        return this.$store.getters.allWorkouts.filter(w => w.creator === this.createdBy && w.fitnessLevel === this.level)
-      }
-      if (this.time[0] !== 0 || this.time[1] !== this.maxTime) {
-        return this.$store.getters.allWorkouts.filter(w => w.time >= this.toMilliseconds(this.time[0]) && w.time <= this.toMilliseconds(this.time[1]))
-      }
-      if (this.createdBy) {
-        return this.$store.getters.allWorkouts.filter(w => w.creator === this.createdBy)
-      }
-      if (this.level) {
-        return this.$store.getters.allWorkouts.filter(w => w.fitnessLevel === this.level)
-      }
       return this.$store.getters.allWorkouts
     },
     allCreators () {
@@ -98,6 +86,19 @@ export default {
       const times = this.$store.getters.allWorkouts.map(w => w.time)
       const max = times.reduce((max, next) => next > max ? next : max, 0)
       return Number(this.$moment.duration(max).minutes())
+    },
+    filteredWorkouts () {
+      let originalWorkouts = this.allWorkouts
+      if (this.createdBy) {
+        originalWorkouts = originalWorkouts.filter(this.creatorFilter)
+      }
+      if (this.level) {
+        originalWorkouts = originalWorkouts.filter(this.levelFilter)
+      }
+      if (this.time[0] !== 0 || this.time[1] !== this.maxTime) {
+        originalWorkouts = originalWorkouts.filter(this.timeFilter)
+      }
+      return originalWorkouts
     }
   },
   methods: {
@@ -106,6 +107,21 @@ export default {
     },
     toMilliseconds (minutes) {
       return minutes * 60000
+    },
+    creatorFilter (workout) {
+      if (this.createdBy && workout.creator === this.createdBy) {
+        return workout
+      }
+    },
+    levelFilter (workout) {
+      if (this.level && workout.fitnessLevel === this.level) {
+        return workout
+      }
+    },
+    timeFilter (workout) {
+      if (workout.time >= this.toMilliseconds(this.time[0]) && workout.time <= this.toMilliseconds(this.time[1])) {
+        return workout
+      }
     }
   }
 }
